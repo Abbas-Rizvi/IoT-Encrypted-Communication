@@ -1,0 +1,127 @@
+package server;
+
+import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import crypt.Keys;
+import network.Host;
+import network.KnownHosts;
+
+public class Start extends Thread {
+
+    static KnownHosts db = new KnownHosts();
+    static String username;
+    static Keys key;
+    static Host localhost;
+    
+    /////////////////////////////////////////
+    // get IP Address of host
+    public static InetAddress hostIp() {
+
+        try {
+            return InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /////////////////////////////////////////
+    // Check if Key Pair exists
+    public static boolean checkKeysExist() {
+
+        String file1Path = "./data/id_rsa";
+        String file2Path = "./data/id_rsa.pub";
+
+        // Create an instance of File with the specified path
+        File file1 = new File(file1Path);
+        File file2 = new File(file2Path);
+
+        if (file1.exists() && file2.exists())
+            return true;
+
+        // if no keys exist
+        return false;
+
+    }
+
+    /////////////////////////////////////////
+    // Run Setup Routine
+    public static void setup() {
+
+        // welcome prompt
+        System.out.println("########################");
+        System.out.println(" Welcome to P2P Social! ");
+        System.out.println("########################");
+
+        // get ip of host
+        String localIp = hostIp().getHostAddress();
+
+        if (checkKeysExist()) {     // check if keys exist
+
+            Scanner scan = new Scanner(System.in);
+            
+            username = scan.nextLine(); // get username
+
+            key = new Keys();   // gen keys
+
+            // create host
+            localhost = new Host(username, localIp, key.getPublicKey());
+
+            // check if name taken
+            if (db.insertRecord(localhost) == 1) {
+                System.out.println("User " + localhost.getName() + " aleady exists!");
+            }
+
+        } else {
+            key = new Keys();
+            key.generateRSAKkeyPair();
+            username = db.lookupNameByPublicKey(db.lookupNameByPublicKey(key.getPublicKeyStr()));
+
+            // create the local host
+            localhost = new Host(username, localIp, key.getPublicKey());
+        }
+
+        System.out.println("Setup Complete....");
+
+    }
+
+    /////////////////////////////////////////
+    // Main
+    public static void main(String[] args) {
+
+        // setup server
+        setup();
+
+        // Start a listening server thread
+        Start start = new Start();
+        Thread nodeListen = new Thread(start);
+        nodeListen.start();
+
+        // Delay for a short period to allow setup to complete
+        try {
+            Thread.sleep(1000); // Adjust the sleep time as needed
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    // Handle the running of the server
+    // run on thread to not interupt main program
+    @Override
+    public void run() {
+
+        System.out.println("Server listening on " + localhost.getIp() + ":" +
+        localhost.getPORT() + "...");
+
+        localhost.startListener();
+
+    }
+
+}

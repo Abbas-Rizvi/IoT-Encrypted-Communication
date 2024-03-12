@@ -2,23 +2,39 @@ package network;
 
 import java.security.PublicKey;
 
+import server.Listener;
+
 public class Host {
     
     private final int PORT = 5687;
 
     private int id;
-    private String name;
+    private String username;
     private String ip;
     private PublicKey pubKey;
+
+    private Listener listener;
 
     
     
     public Host(String name, String ip, PublicKey pubKey) {
-        this.name = name;
+        this.username = name;
         this.ip = ip;
         this.pubKey = pubKey;
     }
 
+    ////////////////////////////
+    // Start Listner
+    public void startListener() {
+        
+        Listener server = new Listener();   // Listener handles requests
+        server.listener();
+
+    }
+    
+
+    ////////////////////////////
+    // Getters and Setters
     public PublicKey getPubKey() {
         return pubKey;
     }
@@ -36,11 +52,11 @@ public class Host {
     }
 
     public String getName() {
-        return name;
+        return username;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.username = name;
     }
 
     public String getIp() {

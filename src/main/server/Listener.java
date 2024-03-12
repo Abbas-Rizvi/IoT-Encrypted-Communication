@@ -18,33 +18,17 @@ import network.MsgPacket;
 
 
 
-public class Server implements Serializable {
+public class Listener implements Serializable {
 
     private static final long serialVersionUID = 123456789L;
 
     // constant for port
     private final int PORT = 5687;
 
-    private String username;
     private PublicKey pubKey;
     private String pubKeyStr;
-    private String ip;
 
     Selector selector;
-
-    public Server(String username, String pubKeyStr, String ip) {
-
-        // store variables
-        this.username = username;
-        this.ip = ip;
-        this.pubKeyStr = pubKeyStr;
-
-    }
-
-    // create node with ip
-    public Server(String ip) {
-        this.ip = ip;
-    }
 
     // get the public key
     public PublicKey getPublicKey() {
@@ -116,10 +100,6 @@ public class Server implements Serializable {
         socketChannel.register(selector, SelectionKey.OP_READ);
         System.out.println("### Connection accepted from: " + socketChannel.getRemoteAddress());
 
-        // // utilize file sender to send the blockchain and node list
-        // FileSender fileSender = new FileSender();
-        // fileSender.sendAllAssets(socketChannel);
-
     }
 
     // handle send requests from connection
@@ -163,8 +143,9 @@ public class Server implements Serializable {
             decodeMessage(data, socketChannel);
         }
     }
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // Decode a message
     public static String decodeMessage(byte[] data, SocketChannel socketChannel) {
 
         MsgPacket msg = null;
@@ -203,25 +184,4 @@ public class Server implements Serializable {
         }
         return null;
     }
-
-    public PublicKey getPubKey() {
-        return pubKey;
-    }
-
-    public String getPubKeyStr() {
-        return pubKeyStr;
-    }
-
-    public int getPORT() {
-        return PORT;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
 }

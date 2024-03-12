@@ -1,8 +1,5 @@
 package network;
 
-import packet.Host;
-import packet.MsgPacket;
-
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;

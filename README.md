@@ -1,11 +1,12 @@
 # SSL Encrypted IoT Communication
 
-P2P Social is a distributed social networking system built using peer-to-peer networks and blockchain.
+End to End Encrypted (E2EE) communication between IoT Devices across networks, utilizing centralized server.
+
+Utilizes RSA encryption algorithm & digital signatures to verify integrity
 
 ## Description
 
-The application is commited to ensuring secure, reilable communication through a network of peers both with and without an internet connection.
+The application is commited to ensuring secure, reilable communication through a network devices.
 
 ## How to Run
 
-C
