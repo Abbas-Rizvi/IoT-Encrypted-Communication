@@ -13,8 +13,6 @@ public class Host {
     private String ip;
     private PublicKey pubKey;
 
-    private Listener listener;
-
     
     
     public Host(String name, String ip, PublicKey pubKey) {

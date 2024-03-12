@@ -3,7 +3,6 @@ package server;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 import crypt.Keys;
@@ -55,9 +54,7 @@ public class Start extends Thread {
     public static void setup() {
 
         // welcome prompt
-        System.out.println("########################");
-        System.out.println(" Welcome to P2P Social! ");
-        System.out.println("########################");
+        System.out.println("Starting server setup...");
 
         // get ip of host
         String localIp = hostIp().getHostAddress();
@@ -87,7 +84,7 @@ public class Start extends Thread {
             localhost = new Host(username, localIp, key.getPublicKey());
         }
 
-        System.out.println("Setup Complete....");
+        System.out.println("Setup Complete!");
 
     }
 
