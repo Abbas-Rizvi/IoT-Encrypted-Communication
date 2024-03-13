@@ -1,4 +1,4 @@
-package server;
+package network;
 
 import java.io.ByteArrayOutputStream;
 //import java.io.ByteArrayInputStream;
@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import crypt.Keys;
-import packet.Host;
 
 public class KnownHosts{
 
@@ -60,7 +59,7 @@ public class KnownHosts{
     private void createTable() throws SQLException {
         try (Connection connection = connect();
                 Statement statement = connection.createStatement()) {
-            String createTableQuery = "CREATE TABLE IF NOT EXISTS known_hosts (" +
+            String createTableQuery = "CREATE TABLE IF NOT EXISTS known_peers (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "name TEXT NOT NULL," +
                     "public_key TEXT NOT NULL," +

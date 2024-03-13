@@ -15,7 +15,7 @@ public class Start extends Thread {
     static String username;
     static Keys key;
     static Host localhost;
-    
+
     /////////////////////////////////////////
     // get IP Address of host
     public static InetAddress hostIp() {
@@ -58,14 +58,11 @@ public class Start extends Thread {
 
         // get ip of host
         String localIp = hostIp().getHostAddress();
+        System.out.println("Host Ip: " + localIp);
 
-        if (checkKeysExist()) {     // check if keys exist
+        if (checkKeysExist()) { // check if keys exist
 
-            Scanner scan = new Scanner(System.in);
-            
-            username = scan.nextLine(); // get username
-
-            key = new Keys();   // gen keys
+            key = new Keys(); // Load keys
 
             // create host
             localhost = new Host(username, localIp, key.getPublicKey());
@@ -76,6 +73,13 @@ public class Start extends Thread {
             }
 
         } else {
+
+            // enter username if creating new keys
+            Scanner scan = new Scanner(System.in);
+            System.out.print("Enter username:");
+            username = scan.nextLine();
+
+            // create keys
             key = new Keys();
             key.generateRSAKkeyPair();
             username = db.lookupNameByPublicKey(db.lookupNameByPublicKey(key.getPublicKeyStr()));
@@ -115,7 +119,7 @@ public class Start extends Thread {
     public void run() {
 
         System.out.println("Server listening on " + localhost.getIp() + ":" +
-        localhost.getPORT() + "...");
+                localhost.getPORT() + "...");
 
         localhost.startListener();
 
