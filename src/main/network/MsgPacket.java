@@ -4,13 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.security.PrivateKey;
-//import java.io.Serializable;
-import java.security.Signature;
 import java.util.Base64;
-
-import crypt.Keys;
-
 
 public class MsgPacket {
 
@@ -30,7 +24,7 @@ public class MsgPacket {
         this.msg = encodedMsg;
 
     }
-    
+
     public MsgPacket(String type, byte[] msgByte, String metadata) {
         this.type = type;
         this.metadata = metadata;
@@ -50,14 +44,13 @@ public class MsgPacket {
 
             if (obj instanceof MsgPacket) {
 
-                this.type = ((MsgPacket)obj).type;
-                this.msg = ((MsgPacket)obj).msg;
-                
+                this.type = ((MsgPacket) obj).type;
+                this.msg = ((MsgPacket) obj).msg;
+
                 return (MsgPacket) obj;
             } else {
                 return null;
             }
-            
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -97,7 +90,11 @@ public class MsgPacket {
     public byte[] getMsg() {
         return msg;
     }
-    
+
+    public String getMetadata() {
+        return metadata;
+    }
+
     public String getMsgString() {
         // Decoding the Base64 encoded message
         byte[] decodedMsg = Base64.getDecoder().decode(this.msg);
@@ -108,22 +105,15 @@ public class MsgPacket {
     public byte[] getSig() {
         return sig;
     }
-    
-}
 
-
-
-    private void setSig(byte[] signedBytes) {
+    public void setSig(byte[] signedBytes) {
         this.sig = signedBytes;
     }
-    
+
     // encode string to base64 and store
-    public void setMsg(String msgString){
+    public void setMsg(String msgString) {
         byte[] encodedMsg = Base64.getEncoder().encode(msgString.getBytes());
         this.msg = encodedMsg;
     }
-
-
-    
 
 }

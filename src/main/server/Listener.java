@@ -35,19 +35,6 @@ public class Listener implements Serializable {
 
     Selector selector;
 
-    // get IP Address of host
-    public static InetAddress hostIp() {
-
-        try {
-            return InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
     // get the public key
     public PublicKey getPublicKey() {
 
@@ -166,6 +153,4 @@ public class Listener implements Serializable {
             decoder.decode(data, ipAddress, socketChannel);
         }
     }
-
- 
 }
