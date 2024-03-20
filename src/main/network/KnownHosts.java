@@ -256,6 +256,27 @@ public class KnownHosts {
         }
     }
 
+    // Lookup name by IP address
+    public String lookupNameByIP(String ipAddress) {
+        try (Connection connection = connect();
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "SELECT name FROM known_peers WHERE ip_address = ?")) {
+
+            preparedStatement.setString(1, ipAddress);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("name");
+                } else {
+                    return null; // IP address not found
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     // get all rows matching name
     public List<String> getAllMatchingRows(String name) {
         List<String> matchingRows = new ArrayList<>();
