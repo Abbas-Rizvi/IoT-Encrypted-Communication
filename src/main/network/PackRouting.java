@@ -4,15 +4,15 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-
+// route packet to other node
 public class PackRouting {
 
     MsgPacket msgPacket;
-    Host host;
+    Host targHost;
 
     // constructor
-    public PackRouting(Host host, MsgPacket msgPacket) {
-        this.host = host;
+    public PackRouting(Host targHost, MsgPacket msgPacket) {
+        this.targHost = targHost;
         this.msgPacket = msgPacket;
     }
 
@@ -24,7 +24,7 @@ public class PackRouting {
         try {
             // create socket channel
             SocketChannel socketChannel = SocketChannel.open();
-            InetSocketAddress addr = new InetSocketAddress(host.getIp(), host.getPORT());
+            InetSocketAddress addr = new InetSocketAddress(targHost.getIp(), targHost.getPORT());
 
             // connect without blocking
             socketChannel.configureBlocking(false);
@@ -49,7 +49,7 @@ public class PackRouting {
         } catch (
 
         Exception e) {
-            System.err.println("# Unable to connect to " + host.getIp() + "; " + e);
+            System.err.println("# Unable to connect to " + targHost.getIp() + "; " + e);
         }
 
     }

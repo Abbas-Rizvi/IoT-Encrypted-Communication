@@ -1,6 +1,8 @@
 package network;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
 //import java.io.ByteArrayInputStream;
 //import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,7 +18,7 @@ import java.util.List;
 
 import crypt.Keys;
 
-public class KnownHosts{
+public class KnownHosts {
 
     private static final String URL = "jdbc:sqlite:data/known_peers.db";
 
@@ -36,23 +38,22 @@ public class KnownHosts{
         try {
             // Register SQLite driver
             Class.forName("org.sqlite.JDBC");
-    
+
             // Try to establish a connection
             connection = DriverManager.getConnection(URL);
-    
+
         } catch (ClassNotFoundException | SQLException e) {
             // Handle exceptions
             e.printStackTrace();
         }
-    
+
         if (connection == null) {
             System.err.println("Failed to establish a connection to the database.");
             System.exit(1); // Terminate the program if the connection fails
         }
-    
+
         return connection;
     }
-   
 
     // createTable
     // creates table if doesnt exist
@@ -89,8 +90,6 @@ public class KnownHosts{
         return 0;
     }
 
-   
-
     public int insertRecord(Host host) {
 
         if (isNameExists(host.getName())) {
@@ -100,7 +99,6 @@ public class KnownHosts{
         try (Connection connection = connect();
                 Statement statement = connection.createStatement()) {
 
-
             String insertDataQuery = "INSERT INTO known_peers (name, public_key, ip_address) VALUES " +
                     "('" + host.getName() + "', '" + host.getPubKey() + "', '" + host.getIp() + "')";
             statement.executeUpdate(insertDataQuery);
@@ -109,6 +107,32 @@ public class KnownHosts{
         }
 
         return 0;
+    }
+
+    // Deserialize byte[] to List<Host>
+    @SuppressWarnings("unchecked")
+    public void mergeDatabase(byte[] hostSerial) {
+
+        try {
+            ByteArrayInputStream byteStream = new ByteArrayInputStream(hostSerial);
+            ObjectInputStream objectStream = new ObjectInputStream(byteStream);
+
+            // Read the List<Node> from the ObjectInputStream
+
+            for (Host host : (List<Host>) objectStream.readObject()) {
+
+                // check if node exists already
+                if (!isNameExists(host.getName())) {
+
+                    // insert if does not exist
+                    insertRecord(host);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     // check if a name already exists in database
@@ -131,11 +155,10 @@ public class KnownHosts{
 
         return false;
     }
-    
-    
+
     // check if an ip addr exists in database
-     private boolean isIpExists(String ipAddress) {
-         
+    private boolean isIpExists(String ipAddress) {
+
         try (Connection connection = connect();
                 PreparedStatement preparedStatement = connection.prepareStatement(
                         "SELECT COUNT(*) AS count FROM known_peers WHERE ip_address = ?")) {
@@ -155,8 +178,6 @@ public class KnownHosts{
         return false;
     }
 
-        
-    
     // look up a certain name
     public String lookupPublicKeyByName(String name) {
         try (Connection connection = connect();
@@ -193,7 +214,6 @@ public class KnownHosts{
         }
     }
 
-    
     // get name for pubkey
     public String lookupNameByPublicKey(String publicKey) {
         try (Connection connection = connect();
@@ -215,7 +235,27 @@ public class KnownHosts{
         }
     }
 
-    
+    // Lookup public key by IP address
+    public String lookupPubKeyByIP(String ipAddress) {
+        try (Connection connection = connect();
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "SELECT public_key FROM known_peers WHERE ip_address = ?")) {
+
+            preparedStatement.setString(1, ipAddress);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("public_key");
+                } else {
+                    return null; // IP address not found
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     // get all rows matching name
     public List<String> getAllMatchingRows(String name) {
         List<String> matchingRows = new ArrayList<>();
@@ -243,7 +283,6 @@ public class KnownHosts{
         return matchingRows;
     }
 
-    
     // delete row
     public void deleteRowsByName(String name) {
         try (Connection connection = connect();
@@ -267,7 +306,7 @@ public class KnownHosts{
                 ResultSet resultSet = statement.executeQuery("SELECT * FROM known_peers")) {
 
             Keys keyObj = new Keys();
-            
+
             while (resultSet.next()) {
 
                 Host host = new Host(
@@ -308,4 +347,3 @@ public class KnownHosts{
     }
 
 }
-

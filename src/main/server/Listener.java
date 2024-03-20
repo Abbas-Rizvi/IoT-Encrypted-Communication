@@ -11,12 +11,15 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.security.PublicKey;
+import java.util.Base64;
 import java.util.Iterator;
 
 import crypt.Keys;
+import crypt.Sign;
+import network.Host;
+import network.KnownHosts;
 import network.MsgPacket;
-
-
+import network.PackRouting;
 
 public class Listener implements Serializable {
 
@@ -139,29 +142,32 @@ public class Listener implements Serializable {
             byte[] data = new byte[buffer.remaining()];
             buffer.get(data);
 
-            // System.out.println("Received message from " + socketChannel.getRemoteAddress());
-            decodeMessage(data, socketChannel);
+            // System.out.println("Received message from " +
+            InetSocketAddress remoteAddress = (InetSocketAddress) socketChannel.getRemoteAddress();
+            String ipAddress = remoteAddress.getAddress().getHostAddress();
+
+            decodeMessage(data, ipAddress, socketChannel);
         }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Decode a message
-    public static String decodeMessage(byte[] data, SocketChannel socketChannel) {
+    public static String decodeMessage(byte[] data, String ipAddress, SocketChannel socketChannel) {
 
         MsgPacket msg = null;
 
         try (ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
-             ObjectInputStream objectStream = new ObjectInputStream(byteStream)) {
-    
+                ObjectInputStream objectStream = new ObjectInputStream(byteStream)) {
+
             Object obj = objectStream.readObject();
             if (obj instanceof MsgPacket) {
                 msg = (MsgPacket) obj;
             }
-    
+
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-    
+
         if (msg != null) {
             try {
                 System.out.println("Received " + msg.getType() + " From " + socketChannel.getRemoteAddress());
@@ -170,16 +176,60 @@ public class Listener implements Serializable {
             }
 
             // if the message passed was blockchain
+            ///////////////////////////////////////////////////////////////////////////////
             if (msg.getType().equalsIgnoreCase("SETUP")) {
-      
 
+                // store the public key
+                KnownHosts knownHosts = new KnownHosts();
+                knownHosts.mergeDatabase(msg.getMsg());
+
+                Keys key = new Keys();
+
+                // send back msg recoognizing connection
+                MsgPacket msgPack = new MsgPacket("RECV-MSG", msg.getMsg(), null);
+                
+                // sign message
+                Sign sign = new Sign();
+                sign.signMsg(msgPack);
+
+
+                Host sendHost = new Host("recv", ipAddress,
+                        key.convertPublicKey(knownHosts.lookupPubKeyByIP(ipAddress)));
+
+                // send packet back to host
+                new PackRouting(sendHost, msgPack);
+
+                ///////////////////////////////////////////////////////////////////////////////
             } else if (msg.getType().equalsIgnoreCase("REQ-PUBKEY")) {
-          
 
-            } else if (msg.getType().equalsIgnoreCase("FORWARD-CRYPT")){
+                KnownHosts knownHosts = new KnownHosts();
+
+                // decode
+                byte[] decodedMsg = Base64.getDecoder().decode(msg.getMsg());
+                String decoded = new String(decodedMsg);
+
+                // lookup pub key
+                String pubK = knownHosts.lookupPublicKeyByName(decoded);
+
+                // send pub key to host
+                MsgPacket msgPack = new MsgPacket("RECV-PUBKEY", data, null);
+
+                ///////////////////////////////////////////////////////////////////////////////
+            } else if (msg.getType().equalsIgnoreCase("RECV-PUBKEY")) {
+
+                // send a new message signed with pub key to
+
+                ///////////////////////////////////////////////////////////////////////////////
+            } else if (msg.getType().equalsIgnoreCase("FORWARD-CRYPT")) {
+
+                // forward encrypted packet
+
+                ///////////////////////////////////////////////////////////////////////////////
+            } else if (msg.getType().equalsIgnoreCase("RECV-MSG")) {
+
+                // Decrypt and output msg
 
             }
-            
 
         }
         return null;
