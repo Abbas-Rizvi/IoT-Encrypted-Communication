@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 //import java.io.ByteArrayInputStream;
 //import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.PublicKey;
 // import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -365,6 +366,51 @@ public class KnownHosts {
         }
 
         return null;
+    }
+
+    // Get Host object by IP address
+    public Host getHostByIP(String ipAddress) {
+        try (Connection connection = connect();
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "SELECT * FROM known_peers WHERE ip_address = ?")) {
+
+            preparedStatement.setString(1, ipAddress);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    String name = resultSet.getString("name");
+                    String ip = resultSet.getString("ip_address");
+                    String publicKey = resultSet.getString("public_key");
+
+                    // convert pubkey string to pubkey
+                    Keys key = new Keys();
+                    PublicKey pubKey = key.convertPublicKey(publicKey);
+
+                    // return host
+                    return new Host(name, ip, pubKey);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null; // Return null if no Host found with the given IP
+    }
+
+    // Get all public keys from the database
+    public List<PublicKey> getAllPublicKeys() {
+        List<PublicKey> publicKeys = new ArrayList<>();
+
+        try {
+            List<Host> hosts = readAllHosts(); // Assuming this method retrieves all hosts from the database
+            for (Host host : hosts) {
+                publicKeys.add(host.getPubKey());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return publicKeys;
     }
 
 }

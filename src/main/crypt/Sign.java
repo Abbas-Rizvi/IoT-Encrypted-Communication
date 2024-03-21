@@ -1,8 +1,11 @@
 package crypt;
 
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Signature;
 
+import network.Host;
+import network.KnownHosts;
 import network.MsgPacket;
 
 public class Sign {
@@ -18,25 +21,54 @@ public class Sign {
     }
 
     // sign message packet
-    public MsgPacket signMsg(MsgPacket pack){
-        
+    public MsgPacket signMsg(MsgPacket pack) {
+
         try {
-        Signature signature = Signature.getInstance("SHA256withRSA");
-        signature.initSign(pk);
-        signature.update(pack.getMsg());
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initSign(pk);
+            signature.update(pack.getMsg());
 
-        byte[] signedBytes = signature.sign();
+            byte[] signedBytes = signature.sign();
 
-        pack.setSig(signedBytes);
+            pack.setSig(signedBytes);
 
-        return pack;
-            
+            return pack;
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
 
+    }
+
+    // verify signature
+    public boolean verifySignature(MsgPacket pack) {
+        try {
+            Signature signature = Signature.getInstance("SHA256withRSA");
+
+            // db connection
+            KnownHosts knownHosts = new KnownHosts();
+
+            // check for valid signature among known hosts
+            for (Host tHost : knownHosts.readAllHosts()) {
+                pack.getSig();
+
+                signature.initVerify(tHost.getPubKey());
+                signature.update(pack.getMsg());
+
+                if (signature.verify(pack.getSig())) {
+                    System.out.println("Msg was verified as signed by" + tHost.getName() + "!");
+                    return true; // signature verified
+                }
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         
+        // sig not verified
+        return false;
     }
 
 }

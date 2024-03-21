@@ -11,6 +11,7 @@ import java.util.Base64;
 import crypt.Keys;
 import crypt.Sign;
 import network.Host;
+import network.HostSerialization;
 import network.KnownHosts;
 import network.MsgPacket;
 import network.PackRouting;
@@ -64,6 +65,10 @@ public class Decoder {
                         setupMsg(msg, ipAddress);
                         break;
 
+                    case "SETUP-RECV-MSG":
+                        setupRecvMsg(msg);
+                        break;
+
                     case "REQ-PUBKEY":
                         KnownHosts knownHosts = new KnownHosts();
                         byte[] decodedMsg = Base64.getDecoder().decode(msg.getMsg());
@@ -91,19 +96,37 @@ public class Decoder {
     }
 
     // setup message
+    // assume message contains a HOST object
     public void setupMsg(MsgPacket msg, String ipAddress) {
 
-        // store the public key
         KnownHosts knownHosts = new KnownHosts();
-        knownHosts.mergeDatabase(msg.getMsg());
+        HostSerialization Hserial = new HostSerialization();
+
+        // unpack host & Store key
+        try {
+            Host recvHost = Hserial.deserializeHost(msg.getMsg());
+
+            if (knownHosts.insertRecord(recvHost) == 1)
+                System.out.println("Error, host already exists");
+            else
+                System.out.println("Host added!");
+
+        } catch (Exception e) {
+            e.getStackTrace();
+        }
+
 
         Keys key = new Keys();
+        
+        // find record for local host
+        String localIp = hostIp().getHostAddress();
+        Host localHost = knownHosts.getHostByIP(localIp);
 
         // send back msg recoognizing connection
         MsgPacket msgPack = new MsgPacket(
                 "SETUP-RECV-MSG",
-                msg.getMsg(),
-                "FROM:" + knownHosts.lookupNameByIP(hostIp().getHostAddress())
+                Hserial.serializeHost(localHost),
+                "FROM:" + localHost.getName()
                         + ";TO:" + knownHosts.lookupNameByIP(ipAddress));
 
         // sign message
@@ -116,6 +139,29 @@ public class Decoder {
 
         // send packet back to host
         new PackRouting(sendHost, msgPack);
+
+    }
+
+    private void setupRecvMsg(MsgPacket msg) {
+        
+        Sign signer = new Sign();
+
+        KnownHosts knownHosts = new KnownHosts();
+        HostSerialization Hserial = new HostSerialization();
+
+        // unpack host & Store key
+        try {
+            Host recvHost = Hserial.deserializeHost(msg.getMsg());
+
+            if (knownHosts.insertRecord(recvHost) == 1)
+                System.out.println("Error, host already exists");
+            else
+                System.out.println("Host added!");
+
+        } catch (Exception e) {
+            e.getStackTrace();
+        }
+
 
     }
 
