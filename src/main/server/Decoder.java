@@ -6,8 +6,10 @@ import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.Base64;
 
+import crypt.Encrypt;
 import crypt.Keys;
 import crypt.Sign;
 import network.Host;
@@ -62,31 +64,33 @@ public class Decoder {
                 switch (messageType) {
 
                     case "SETUP":
+                        // client initial conenct to server
                         setupMsg(msg, ipAddress);
                         break;
 
                     case "SETUP-RECV-MSG":
+                        // server response to inital client connect
                         setupRecvMsg(msg);
                         break;
 
                     case "REQ-PUBKEY":
-                        KnownHosts knownHosts = new KnownHosts();
-                        byte[] decodedMsg = Base64.getDecoder().decode(msg.getMsg());
-                        String decoded = new String(decodedMsg);
-                        String pubK = knownHosts.lookupPublicKeyByName(decoded);
-                        MsgPacket msgPack = new MsgPacket("RECV-PUBKEY", data, null);
+                        // client requesting key from server
+                        reqPubKey(msg, ipAddress);
                         break;
 
                     case "RECV-PUBKEY":
-                        // send a new message signed with pub key
+                        // server processsing client req for key
+                        recvPubKey(msg, ipAddress, "testmsg");
                         break;
 
                     case "FORWARD-CRYPT":
                         // forward encrypted packet
+                        forwardCrypt(msg);
                         break;
 
                     case "RECV-MSG":
                         // Decrypt and output msg
+                        recvMsg(msg);
                         break;
                 }
             } catch (Exception e) {
@@ -115,9 +119,8 @@ public class Decoder {
             e.getStackTrace();
         }
 
-
         Keys key = new Keys();
-        
+
         // find record for local host
         String localIp = hostIp().getHostAddress();
         Host localHost = knownHosts.getHostByIP(localIp);
@@ -142,9 +145,9 @@ public class Decoder {
 
     }
 
+    // setup message
+    // assume message contains a HOST object
     private void setupRecvMsg(MsgPacket msg) {
-        
-        Sign signer = new Sign();
 
         KnownHosts knownHosts = new KnownHosts();
         HostSerialization Hserial = new HostSerialization();
@@ -162,6 +165,158 @@ public class Decoder {
             e.getStackTrace();
         }
 
+    }
+
+    private void reqPubKey(MsgPacket msg, String ipAddress) {
+
+        KnownHosts knownHosts = new KnownHosts();
+        HostSerialization Hserial = new HostSerialization();
+
+        // verify integrity of signature
+        Sign signer = new Sign();
+
+        if (!signer.verifySignature(msg))
+            System.out.println("unknown signature; discarding message");
+        else {
+
+            // get requested name
+            // resolve using database
+            String reqSearch = msg.getMsgString();
+
+            String tarHostIp = knownHosts.lookupIPAddressByName(reqSearch);
+            Host tarHost = knownHosts.getHostByIP(tarHostIp);
+
+            Keys key = new Keys();
+            Encrypt encrypt = new Encrypt();
+
+            byte[] msgPayload = encrypt.encrypt(
+                    Hserial.serializeHost(tarHost),
+                    key.convertPublicKey(knownHosts.lookupPubKeyByIP(ipAddress)));
+
+            // send back msg recoognizing connection
+            MsgPacket msgPack = new MsgPacket(
+                    "-RECV-MSG",
+                    msgPayload,
+                    null);
+
+            // create host for message to be sent to
+            Host sendHost = new Host("recv", ipAddress,
+                    key.convertPublicKey(knownHosts.lookupPubKeyByIP(ipAddress)));
+
+            // sign message
+            Sign sign = new Sign();
+            sign.signMsg(msgPack);
+
+            // send packet back to host
+            new PackRouting(sendHost, msgPack);
+
+        }
+
+    }
+
+    private void recvPubKey(MsgPacket msg, String ipAddress, String msgText) {
+
+        KnownHosts knownHosts = new KnownHosts();
+        HostSerialization Hserial = new HostSerialization();
+        Keys key = new Keys();
+        Encrypt encrypt = new Encrypt();
+
+        // verify integrity of signature
+        Sign signer = new Sign();
+
+        if (!signer.verifySignature(msg))
+            System.out.println("unknown signature; discarding message");
+        else {
+
+            // decrypt
+            Host destHost = Hserial.deserializeHost(encrypt.decrypt(msg.getMsg()));
+
+            // get server host info
+            Host tarHost = knownHosts.getHostByIP(ipAddress);
+
+            // enter payload & encrypt for destination
+            byte[] destEncryption = encrypt.encrypt(msgText.getBytes(), destHost.getPubKey());
+
+            // send msg to server regarding packet
+            MsgPacket msgPack = new MsgPacket(
+                    "FORWARD-MSG",
+                    destEncryption,
+                    destHost.getName());
+
+            // create host for message to be sent to
+            Host sendHost = new Host("recv", ipAddress,
+                    key.convertPublicKey(knownHosts.lookupPubKeyByIP(ipAddress)));
+
+            // sign message
+            Sign sign = new Sign();
+            sign.signMsg(msgPack);
+
+            // send packet back to host
+            new PackRouting(sendHost, msgPack);
+
+        }
+
+    }
+
+    // forward encrypted packet to the destination
+    private void forwardCrypt(MsgPacket msg) {
+
+        KnownHosts knownHosts = new KnownHosts();
+        HostSerialization Hserial = new HostSerialization();
+        Keys key = new Keys();
+        Encrypt encrypt = new Encrypt();
+
+        // verify integrity of signature
+        Sign signer = new Sign();
+
+        if (!signer.verifySignature(msg))
+            System.out.println("unknown signature; discarding message");
+        else {
+
+            // get destination info using metadata
+            String ipAddress = knownHosts.lookupIPAddressByName(msg.getMetadata());
+            Host tarHost = knownHosts.getHostByIP(ipAddress);
+
+            // send msg to destination
+            MsgPacket msgPack = new MsgPacket(
+                    "FORWARD-MSG",
+                    msg.getMsg(),
+                    tarHost.getName());
+
+            // sign message
+            Sign sign = new Sign();
+            sign.signMsg(msgPack);
+
+            // send packet back to host
+            new PackRouting(tarHost, msgPack);
+
+        }
+
+    }
+
+    private void recvMsg(MsgPacket msg) {
+
+        KnownHosts knownHosts = new KnownHosts();
+        HostSerialization Hserial = new HostSerialization();
+        Keys key = new Keys();
+        Encrypt encrypt = new Encrypt();
+
+        // verify integrity of signature
+        Sign signer = new Sign();
+
+        if (!signer.verifySignature(msg))
+            System.out.println("unknown signature; discarding message");
+        else {
+
+            // decrypt
+            byte[] decrpytedMsgBytes = encrypt.decrypt(msg.getMsg());
+            
+            String outputMsg = Arrays.toString(decrpytedMsgBytes);
+            
+            System.out.println(outputMsg);
+
+
+        }
 
     }
 
