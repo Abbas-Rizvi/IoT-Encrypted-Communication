@@ -70,7 +70,7 @@ public class Start extends Thread {
             KnownHosts knownHosts = new KnownHosts();
 
             // create host
-            localhost = new Host(username, localIp, key.getPublicKey());
+            localhost = new Host(username, localIp, key.getPublicKeyStr());
 
             String name = knownHosts.lookupNameByIP(localIp);
 
@@ -89,7 +89,7 @@ public class Start extends Thread {
             key.generateRSAKkeyPair();
 
             // create the local host
-            localhost = new Host(username, localIp, key.getPublicKey());
+            localhost = new Host(username, localIp, key.getPublicKeyStr());
 
             // check if name taken
             if (db.insertRecord(localhost) == 1) {

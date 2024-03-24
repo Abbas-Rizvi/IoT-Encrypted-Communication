@@ -1,6 +1,9 @@
 package network;
 
 import java.security.PublicKey;
+
+import crypt.Keys;
+
 import java.io.Serializable;
 import server.Listener;
 
@@ -15,10 +18,12 @@ public class Host implements Serializable{
 
     
     
-    public Host(String name, String ip, PublicKey pubKey) {
+    public Host(String name, String ip, String pubKey) {
         this.username = name;
         this.ip = ip;
-        this.pubKey = pubKey;
+        
+        Keys keys = new Keys();
+        this.pubKey = keys.convertPublicKey(pubKey);
     }
 
     ////////////////////////////

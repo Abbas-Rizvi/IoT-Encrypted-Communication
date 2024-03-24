@@ -327,14 +327,13 @@ public class KnownHosts {
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery("SELECT * FROM known_peers")) {
 
-            Keys keyObj = new Keys();
 
             while (resultSet.next()) {
 
                 Host host = new Host(
                         resultSet.getString("name"),
-                        resultSet.getString("public_key"),
-                        keyObj.convertPublicKey(resultSet.getString("ip_address")));
+                        resultSet.getString("ip_address"),
+                        resultSet.getString("public_key"));
 
                 allHosts.add(host);
             }
@@ -382,12 +381,8 @@ public class KnownHosts {
                     String ip = resultSet.getString("ip_address");
                     String publicKey = resultSet.getString("public_key");
 
-                    // convert pubkey string to pubkey
-                    Keys key = new Keys();
-                    PublicKey pubKey = key.convertPublicKey(publicKey);
-
                     // return host
-                    return new Host(name, ip, pubKey);
+                    return new Host(name, ip, publicKey);
                 }
             }
         } catch (SQLException e) {

@@ -38,22 +38,23 @@ public class Decoder {
     // Decode a message
     public void decode(byte[] data, String ipAddress, SocketChannel socketChannel) {
 
-        
         MsgSerializer mSerializer = new MsgSerializer();
 
         MsgPacket msg = mSerializer.deserialize(data);
 
-        /* // cast data into message object to allow understanding
-        try (ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
-                ObjectInputStream objectStream = new ObjectInputStream(byteStream)) {
-
-            Object obj = objectStream.readObject();
-            if (obj instanceof MsgPacket) {
-                msg = (MsgPacket) obj;
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        } */
+        /*
+         * // cast data into message object to allow understanding
+         * try (ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
+         * ObjectInputStream objectStream = new ObjectInputStream(byteStream)) {
+         * 
+         * Object obj = objectStream.readObject();
+         * if (obj instanceof MsgPacket) {
+         * msg = (MsgPacket) obj;
+         * }
+         * } catch (IOException | ClassNotFoundException e) {
+         * e.printStackTrace();
+         * }
+         */
 
         // if message is not empty
         if (msg != null) {
@@ -142,7 +143,7 @@ public class Decoder {
 
         // create host for message to be sent to
         Host sendHost = new Host("recv", ipAddress,
-                key.convertPublicKey(knownHosts.lookupPubKeyByIP(ipAddress)));
+                knownHosts.lookupPubKeyByIP(ipAddress));
 
         // send packet back to host
         new PackRouting(sendHost, msgPack);
@@ -205,7 +206,7 @@ public class Decoder {
 
             // create host for message to be sent to
             Host sendHost = new Host("recv", ipAddress,
-                    key.convertPublicKey(knownHosts.lookupPubKeyByIP(ipAddress)));
+                    knownHosts.lookupPubKeyByIP(ipAddress));
 
             // sign message
             Sign sign = new Sign();
@@ -247,9 +248,11 @@ public class Decoder {
                     destEncryption,
                     destHost.getName());
 
+ 
             // create host for message to be sent to
             Host sendHost = new Host("recv", ipAddress,
-                    key.convertPublicKey(knownHosts.lookupPubKeyByIP(ipAddress)));
+                    knownHosts.lookupPubKeyByIP(ipAddress));
+
 
             // sign message
             Sign sign = new Sign();
@@ -300,7 +303,6 @@ public class Decoder {
 
     private void recvMsg(MsgPacket msg) {
 
-     
         Encrypt encrypt = new Encrypt();
 
         // verify integrity of signature
@@ -312,11 +314,10 @@ public class Decoder {
 
             // decrypt
             byte[] decrpytedMsgBytes = encrypt.decrypt(msg.getMsg());
-            
-            String outputMsg = Arrays.toString(decrpytedMsgBytes);
-            
-            System.out.println(outputMsg);
 
+            String outputMsg = Arrays.toString(decrpytedMsgBytes);
+
+            System.out.println(outputMsg);
 
         }
 
