@@ -146,7 +146,8 @@ public class Decoder {
                 knownHosts.lookupPubKeyByIP(ipAddress));
 
         // send packet back to host
-        new PackRouting(sendHost, msgPack);
+        PackRouting packR = new PackRouting(sendHost, msgPack);
+        packR.start();
 
     }
 
@@ -213,7 +214,8 @@ public class Decoder {
             sign.signMsg(msgPack);
 
             // send packet back to host
-            new PackRouting(sendHost, msgPack);
+            PackRouting packR = new PackRouting(sendHost, msgPack);
+            packR.start();
 
         }
 
@@ -248,18 +250,17 @@ public class Decoder {
                     destEncryption,
                     destHost.getName());
 
- 
             // create host for message to be sent to
             Host sendHost = new Host("recv", ipAddress,
                     knownHosts.lookupPubKeyByIP(ipAddress));
-
 
             // sign message
             Sign sign = new Sign();
             sign.signMsg(msgPack);
 
             // send packet back to host
-            new PackRouting(sendHost, msgPack);
+            PackRouting packR = new PackRouting(sendHost, msgPack);
+            packR.start();
 
         }
 
@@ -295,7 +296,8 @@ public class Decoder {
             sign.signMsg(msgPack);
 
             // send packet back to host
-            new PackRouting(tarHost, msgPack);
+            PackRouting packR = new PackRouting(tarHost, msgPack);
+            packR.start();
 
         }
 

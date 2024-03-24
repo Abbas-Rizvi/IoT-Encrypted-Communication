@@ -69,12 +69,11 @@ public class Start extends Thread {
 
             KnownHosts knownHosts = new KnownHosts();
 
-            // create host
-            localhost = new Host(username, localIp, key.getPublicKeyStr());
-
             String name = knownHosts.lookupNameByIP(localIp);
-
             System.out.println("ID: " + name);
+
+            // create host
+            localhost = new Host(name, localIp, key.getPublicKeyStr());
 
         } else {
 
@@ -140,17 +139,17 @@ public class Start extends Thread {
                     scanner.nextLine(); // escape the \n
                     System.out.print("Enter Server IP: ");
                     String ip = scanner.nextLine();
-                    
-                    Host server = new Host("", ip, null);
+
+                    Host server = new Host("", ip);
 
                     System.out.println("Sending request to server for connection...");
-                    
+
                     HostSerialization Hserial = new HostSerialization();
                     MsgPacket conReq = new MsgPacket("SETUP", Hserial.serializeHost(localhost), "");
 
                     PackRouting packR = new PackRouting(server, conReq);
                     packR.start();
-                    
+
                     System.out.println("Connection Req Sent!");
 
                     break;
