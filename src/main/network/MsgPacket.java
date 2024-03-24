@@ -4,9 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Base64;
 
-public class MsgPacket {
+public class MsgPacket implements Serializable{
 
     private String type;
     private String metadata;

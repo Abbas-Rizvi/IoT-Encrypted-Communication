@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 // route packet to other node
-public class PackRouting {
+public class PackRouting extends Thread{
 
     MsgPacket msgPacket;
     Host targHost;
@@ -14,10 +14,14 @@ public class PackRouting {
     public PackRouting(Host targHost, MsgPacket msgPacket) {
         this.targHost = targHost;
         this.msgPacket = msgPacket;
+        
+
     }
 
     // send message to host
     public void run() {
+        
+        System.out.println(msgPacket);
 
         // System.out.println("Thread started for sending to " + host.getIp());
 
@@ -49,7 +53,8 @@ public class PackRouting {
         } catch (
 
         Exception e) {
-            System.err.println("# Unable to connect to " + targHost.getIp() + "; " + e);
+            e.printStackTrace();
+//            System.err.println("# Unable to connect to " + targHost.getIp() + "; " + e);
         }
 
     }

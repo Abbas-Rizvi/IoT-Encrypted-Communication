@@ -38,8 +38,10 @@ public class Decoder {
     public void decode(byte[] data, String ipAddress, SocketChannel socketChannel) {
 
         MsgPacket msg = null;
+        
+        msg = msg.deserialize(data);
 
-        // cast data into message object to allow understanding
+        /* // cast data into message object to allow understanding
         try (ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
                 ObjectInputStream objectStream = new ObjectInputStream(byteStream)) {
 
@@ -49,7 +51,7 @@ public class Decoder {
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-        }
+        } */
 
         // if message is not empty
         if (msg != null) {

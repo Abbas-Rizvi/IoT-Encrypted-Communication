@@ -7,7 +7,10 @@ import java.util.Scanner;
 
 import crypt.Keys;
 import network.Host;
+import network.HostSerialization;
 import network.KnownHosts;
+import network.MsgPacket;
+import network.PackRouting;
 
 public class Start extends Thread {
 
@@ -68,10 +71,9 @@ public class Start extends Thread {
 
             // create host
             localhost = new Host(username, localIp, key.getPublicKey());
-            
+
             String name = knownHosts.lookupNameByIP(localIp);
 
-       
             System.out.println("ID: " + name);
 
         } else {
@@ -81,7 +83,6 @@ public class Start extends Thread {
             System.out.print("Enter username:");
             username = scan.nextLine();
             System.out.println("ID: " + username);
-            
 
             // create keys
             key = new Keys();
@@ -89,12 +90,12 @@ public class Start extends Thread {
 
             // create the local host
             localhost = new Host(username, localIp, key.getPublicKey());
-            
+
             // check if name taken
             if (db.insertRecord(localhost) == 1) {
                 System.out.println("User " + localhost.getName() + " aleady exists!");
             }
-            
+
         }
 
         System.out.println("Setup Complete!");
@@ -119,6 +120,54 @@ public class Start extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        // Program driver
+        Scanner scanner = new Scanner(System.in);
+
+        int choice;
+        do {
+            System.out.println("Main Menu:");
+            System.out.println("1. Connect to server");
+            System.out.println("2. Send message");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.println("Connecting to server...");
+
+                    scanner.nextLine(); // escape the \n
+                    System.out.print("Enter Server IP: ");
+                    String ip = scanner.nextLine();
+                    
+                    Host server = new Host("", ip, null);
+
+                    System.out.println("Sending request to server for connection...");
+                    
+                    HostSerialization Hserial = new HostSerialization();
+                    MsgPacket conReq = new MsgPacket("SETUP", Hserial.serializeHost(localhost), "");
+
+                    PackRouting packR = new PackRouting(server, conReq);
+                    packR.start();
+                    
+                    System.out.println("Connection Req Sent!");
+
+                    break;
+                case 2:
+                    System.out.println("Sending message...");
+                    // Code to send a message
+                    break;
+                case 3:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please enter a number between 1 and 3.");
+                    break;
+            }
+        } while (choice != 3);
+
+        scanner.close();
 
     }
 

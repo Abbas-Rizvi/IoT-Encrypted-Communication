@@ -1,10 +1,10 @@
 package network;
 
 import java.security.PublicKey;
-
+import java.io.Serializable;
 import server.Listener;
 
-public class Host {
+public class Host implements Serializable{
     
     private final int PORT = 5687;
 
