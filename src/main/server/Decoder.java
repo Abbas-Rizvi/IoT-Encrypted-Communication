@@ -296,9 +296,7 @@ public class Decoder {
 
     private void recvMsg(MsgPacket msg) {
 
-        KnownHosts knownHosts = new KnownHosts();
-        HostSerialization Hserial = new HostSerialization();
-        Keys key = new Keys();
+     
         Encrypt encrypt = new Encrypt();
 
         // verify integrity of signature

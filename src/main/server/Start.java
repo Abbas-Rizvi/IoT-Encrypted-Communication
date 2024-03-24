@@ -64,13 +64,15 @@ public class Start extends Thread {
 
             key = new Keys(); // Load keys
 
+            KnownHosts knownHosts = new KnownHosts();
+
             // create host
             localhost = new Host(username, localIp, key.getPublicKey());
+            
+            String name = knownHosts.lookupNameByIP(localIp);
 
-            // check if name taken
-            if (db.insertRecord(localhost) == 1) {
-                System.out.println("User " + localhost.getName() + " aleady exists!");
-            }
+       
+            System.out.println("ID: " + name);
 
         } else {
 
@@ -78,14 +80,21 @@ public class Start extends Thread {
             Scanner scan = new Scanner(System.in);
             System.out.print("Enter username:");
             username = scan.nextLine();
+            System.out.println("ID: " + username);
+            
 
             // create keys
             key = new Keys();
             key.generateRSAKkeyPair();
-            username = db.lookupNameByPublicKey(db.lookupNameByPublicKey(key.getPublicKeyStr()));
 
             // create the local host
             localhost = new Host(username, localIp, key.getPublicKey());
+            
+            // check if name taken
+            if (db.insertRecord(localhost) == 1) {
+                System.out.println("User " + localhost.getName() + " aleady exists!");
+            }
+            
         }
 
         System.out.println("Setup Complete!");
