@@ -15,6 +15,7 @@ public class Host implements Serializable {
     private String username;
     private String ip;
     private PublicKey pubKey;
+    private String pubKeyStr;
 
     public Host(String name, String ip) {
 
@@ -26,6 +27,7 @@ public class Host implements Serializable {
         this.username = name;
         this.ip = ip;
 
+        this.pubKeyStr = pubKey;
         Keys keys = new Keys();
         this.pubKey = keys.convertPublicKey(pubKey);
     }
@@ -43,6 +45,10 @@ public class Host implements Serializable {
     // Getters and Setters
     public PublicKey getPubKey() {
         return pubKey;
+    }
+
+    public String getPubKeyStr() {
+        return pubKeyStr;
     }
 
     public void setPubKey(PublicKey pubKey) {

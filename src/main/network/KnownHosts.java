@@ -101,7 +101,7 @@ public class KnownHosts {
                 Statement statement = connection.createStatement()) {
 
             String insertDataQuery = "INSERT INTO known_peers (name, public_key, ip_address) VALUES " +
-                    "('" + host.getName() + "', '" + host.getPubKey() + "', '" + host.getIp() + "')";
+                    "('" + host.getName() + "', '" + host.getPubKeyStr() + "', '" + host.getIp() + "')";
             statement.executeUpdate(insertDataQuery);
         } catch (SQLException e) {
             e.printStackTrace();
