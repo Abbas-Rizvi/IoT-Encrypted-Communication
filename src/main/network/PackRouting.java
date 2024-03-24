@@ -44,7 +44,8 @@ public class PackRouting extends Thread{
             // System.out.println("# Connected to " + host.getIp());
 
             // Send the file bytes
-            ByteBuffer buffer = ByteBuffer.wrap(msgPacket.serialize());
+            MsgSerializer mSerializer = new MsgSerializer();
+            ByteBuffer buffer = ByteBuffer.wrap(mSerializer.serialize(msgPacket));
             socketChannel.write(buffer);
 
             if (socketChannel != null && socketChannel.isConnectionPending())

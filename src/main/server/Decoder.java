@@ -16,6 +16,7 @@ import network.Host;
 import network.HostSerialization;
 import network.KnownHosts;
 import network.MsgPacket;
+import network.MsgSerializer;
 import network.PackRouting;
 
 public class Decoder {
@@ -37,9 +38,10 @@ public class Decoder {
     // Decode a message
     public void decode(byte[] data, String ipAddress, SocketChannel socketChannel) {
 
-        MsgPacket msg = null;
         
-        msg = msg.deserialize(data);
+        MsgSerializer mSerializer = new MsgSerializer();
+
+        MsgPacket msg = mSerializer.deserialize(data);
 
         /* // cast data into message object to allow understanding
         try (ByteArrayInputStream byteStream = new ByteArrayInputStream(data);

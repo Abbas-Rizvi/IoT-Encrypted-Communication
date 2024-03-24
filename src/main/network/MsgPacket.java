@@ -33,58 +33,7 @@ public class MsgPacket implements Serializable{
 
     }
 
-    // read message from byte[]
-    public MsgPacket deserialize(byte[] msgBytes) {
-
-        try {
-            ByteArrayInputStream byteArrayIn = new ByteArrayInputStream(msgBytes);
-            ObjectInputStream ois = new ObjectInputStream(byteArrayIn);
-
-            // cast input to object
-            Object obj = ois.readObject();
-
-            if (obj instanceof MsgPacket) {
-
-                this.type = ((MsgPacket) obj).type;
-                this.msg = ((MsgPacket) obj).msg;
-
-                return (MsgPacket) obj;
-            } else {
-                return null;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    // convert message to a byte[]
-    public byte[] serialize() {
-
-        try {
-
-            // create output streams
-            ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(byteArrayOut);
-
-            // Write the object to the byte array stream
-            oos.writeObject(this);
-
-            // get byte array from the output stream
-            byte[] byteArray = byteArrayOut.toByteArray();
-
-            return byteArray;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public String getType() {
+     public String getType() {
         return type;
     }
 
