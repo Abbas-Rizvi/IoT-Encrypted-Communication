@@ -33,10 +33,20 @@ public class Encrypt {
             rsaCipher.init(Cipher.ENCRYPT_MODE, publicKey);
             byte[] encryptedSymmetricKey = rsaCipher.doFinal(symmetricKey.getEncoded());
 
+            ;
+
             // Combine key and message
             byte[] merged = new byte[encryptedSymmetricKey.length + encryptedMessage.length];
             System.arraycopy(encryptedSymmetricKey, 0, merged, 0, encryptedSymmetricKey.length);
             System.arraycopy(encryptedMessage, 0, merged, encryptedSymmetricKey.length, encryptedMessage.length);
+
+            System.out.println("0000000000000000000000");
+            System.out.println(encryptedSymmetricKey.length);
+            System.out.println("0000000000000000000000");
+            System.out.println(encryptedMessage.length);
+            System.out.println("0000000000000000000000");
+            System.out.println(merged.length);
+            System.out.println("0000000000000000000000");
 
             return merged;
         } catch (Exception e) {
