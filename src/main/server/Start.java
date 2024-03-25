@@ -1,8 +1,12 @@
 package server;
 
 import java.io.File;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.Scanner;
 
 import crypt.Keys;
@@ -22,11 +26,25 @@ public class Start extends Thread {
     /////////////////////////////////////////
     // get IP Address of host
     public static InetAddress hostIp() {
-
         try {
-            return InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                // filters out 127.0.0.1 and inactive interfaces
+                if (iface.isLoopback() || !iface.isUp())
+                    continue;
 
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    if (!(addr instanceof Inet4Address) || addr.isLoopbackAddress())
+                        continue;
+
+                    // This is your public IP address
+                    return addr;
+                }
+            }
+        } catch (SocketException e) {
             e.printStackTrace();
         }
 

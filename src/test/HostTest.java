@@ -19,7 +19,7 @@ public class HostTest {
     public void setUp() {
         // Initialize Host object with sample data
         pubKey = generateSamplePublicKey();
-        host = new Host("TestUser", "127.0.0.1", pubKey);
+        host = new Host("TestUser", "127.0.0.1", "");
     }
 
     @Test
