@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -253,8 +254,8 @@ public class Decoder {
                 while ((line = reader.readLine()) != null) {
                     content.append(line).append("\n");
                 }
-                
-                // delete file 
+
+                // delete file
                 File delFile = new File(msgPath);
                 delFile.delete();
 
@@ -338,7 +339,7 @@ public class Decoder {
             // decrypt
             byte[] decrpytedMsgBytes = encrypt.decrypt(msg.getMsg());
 
-            String outputMsg = Arrays.toString(decrpytedMsgBytes);
+            String outputMsg = new String(decrpytedMsgBytes , StandardCharsets.UTF_8);
 
             System.out.println(outputMsg);
 
