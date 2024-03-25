@@ -267,7 +267,7 @@ public class Decoder {
 
             // send msg to server regarding packet
             MsgPacket msgPack = new MsgPacket(
-                    "FORWARD-MSG",
+                    "FORWARD-CRYPT",
                     destEncryption,
                     destHost.getName());
 

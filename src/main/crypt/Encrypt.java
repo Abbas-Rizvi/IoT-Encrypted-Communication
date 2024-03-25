@@ -40,14 +40,6 @@ public class Encrypt {
             System.arraycopy(encryptedSymmetricKey, 0, merged, 0, encryptedSymmetricKey.length);
             System.arraycopy(encryptedMessage, 0, merged, encryptedSymmetricKey.length, encryptedMessage.length);
 
-            System.out.println("0000000000000000000000");
-            System.out.println(encryptedSymmetricKey.length);
-            System.out.println("0000000000000000000000");
-            System.out.println(encryptedMessage.length);
-            System.out.println("0000000000000000000000");
-            System.out.println(merged.length);
-            System.out.println("0000000000000000000000");
-
             return merged;
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,9 +49,10 @@ public class Encrypt {
 
     // Decrypt message with private key
     public byte[] decrypt(byte[] encryptedMessage) {
+
         try {
             // Extract symmetric key and message
-            int keySize = 256 / 8;
+            int keySize = 512;
 
             byte[] encryptedSymmetricKey = new byte[keySize];
             byte[] encryptedData = new byte[encryptedMessage.length - keySize];
