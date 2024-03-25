@@ -1,6 +1,9 @@
 package server;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -173,7 +176,38 @@ public class Start extends Thread {
                     break;
                 case 2:
                     System.out.println("Sending message...");
-                    // Code to send a message
+
+                    scanner.nextLine(); // escape the \n
+
+                    System.out.print("Enter server name: ");
+                    String serverName = scanner.nextLine();
+
+                    System.out.print("Enter recipeint name: ");
+                    String recipName = scanner.nextLine();
+
+                    // get server host
+                    KnownHosts knownHosts = new KnownHosts();
+                    Host serverHost = knownHosts.getHostByIP(knownHosts.lookupIPAddressByName(serverName));
+
+                    // send message to serv
+                    System.out.print("Enter Message to send: ");
+                    String msgTxt = scanner.nextLine();
+
+                    // put msg in file so can be accessed by thread
+                    String msgPath = "data/msg.txt";
+
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(msgPath))) {
+                        writer.write(msgTxt);
+                    } catch (IOException e) {
+                        System.err.println("Error writing msg to temp file: " + e.getMessage());
+                    }
+
+                    // initiate message request chain
+                    MsgPacket msgForward = new MsgPacket("REQ-PUBKEY", recipName, "");
+                    PackRouting packR1 = new PackRouting(serverHost, msgForward);
+
+                    packR1.start();
+
                     break;
                 case 3:
                     System.out.println("Exiting...");

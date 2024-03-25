@@ -1,6 +1,9 @@
 package server;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
@@ -201,7 +204,7 @@ public class Decoder {
 
             // send back msg recoognizing connection
             MsgPacket msgPack = new MsgPacket(
-                    "-RECV-MSG",
+                    "RECV-PUBKEY",
                     msgPayload,
                     null);
 
@@ -221,7 +224,7 @@ public class Decoder {
 
     }
 
-    private void recvPubKey(MsgPacket msg, String ipAddress, String msgText) {
+    private void recvPubKey(MsgPacket msg, String ipAddress) {
 
         KnownHosts knownHosts = new KnownHosts();
         HostSerialization Hserial = new HostSerialization();
@@ -241,8 +244,26 @@ public class Decoder {
             // get server host info
             Host tarHost = knownHosts.getHostByIP(ipAddress);
 
+            // read message stored in file
+            String msgPath = "data/msg.txt";
+
+            StringBuilder content = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new FileReader(msgPath))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line).append("\n");
+                }
+                
+                // delete file 
+                File delFile = new File(msgPath);
+                delFile.delete();
+
+            } catch (IOException e) {
+                System.err.println("Error reading file: " + e.getMessage());
+            }
+
             // enter payload & encrypt for destination
-            byte[] destEncryption = encrypt.encrypt(msgText.getBytes(), destHost.getPubKey());
+            byte[] destEncryption = encrypt.encrypt(content.toString().getBytes(), destHost.getPubKey());
 
             // send msg to server regarding packet
             MsgPacket msgPack = new MsgPacket(
@@ -287,7 +308,7 @@ public class Decoder {
 
             // send msg to destination
             MsgPacket msgPack = new MsgPacket(
-                    "FORWARD-MSG",
+                    "RECV-MSG",
                     msg.getMsg(),
                     tarHost.getName());
 
