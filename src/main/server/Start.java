@@ -13,6 +13,7 @@ import java.util.Enumeration;
 import java.util.Scanner;
 
 import crypt.Keys;
+import crypt.Sign;
 import network.Host;
 import network.HostSerialization;
 import network.KnownHosts;
@@ -201,9 +202,16 @@ public class Start extends Thread {
                     } catch (IOException e) {
                         System.err.println("Error writing msg to temp file: " + e.getMessage());
                     }
+                    
+        ;
 
                     // initiate message request chain
                     MsgPacket msgForward = new MsgPacket("REQ-PUBKEY", recipName, "");
+
+                    // sign message
+                    Sign sign = new Sign();
+                    sign.signMsg(msgForward);
+
                     PackRouting packR1 = new PackRouting(serverHost, msgForward);
 
                     packR1.start();
