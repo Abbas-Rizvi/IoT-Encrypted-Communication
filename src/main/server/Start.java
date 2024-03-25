@@ -79,11 +79,11 @@ public class Start extends Thread {
     public static void setup() {
 
         // welcome prompt
-        System.out.println("Starting server setup...");
+        System.out.println("\033[0;92mStarting server setup...\033[0m");
 
         // get ip of host
         String localIp = hostIp().getHostAddress();
-        System.out.println("Host Ip: " + localIp);
+        System.out.println("\033[0;92mHost Ip: " + localIp + "\033[0m");
 
         if (checkKeysExist()) { // check if keys exist
 
@@ -92,7 +92,7 @@ public class Start extends Thread {
             KnownHosts knownHosts = new KnownHosts();
 
             String name = knownHosts.lookupNameByIP(localIp);
-            System.out.println("ID: " + name);
+            System.out.println("\033[0;92mID: " + name + "\033[0m");
 
             // create host
             localhost = new Host(name, localIp, key.getPublicKeyStr());
@@ -103,7 +103,7 @@ public class Start extends Thread {
             Scanner scan = new Scanner(System.in);
             System.out.print("Enter username:");
             username = scan.nextLine();
-            System.out.println("ID: " + username);
+            System.out.println("\033[0;92mID: " + username + "\033[0m");
 
             // create keys
             key = new Keys();
@@ -119,7 +119,7 @@ public class Start extends Thread {
 
         }
 
-        System.out.println("Setup Complete!");
+        System.out.println("\033[0;92mSetup Complete!\033[0m\n");
 
     }
 
@@ -135,19 +135,19 @@ public class Start extends Thread {
         Thread nodeListen = new Thread(start);
         nodeListen.start();
 
-        // Delay for a short period to allow setup to complete
-        try {
-            Thread.sleep(1000); // Adjust the sleep time as needed
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         // Program driver
         Scanner scanner = new Scanner(System.in);
 
         int choice;
         do {
-            System.out.println("Main Menu:");
+            // delay 
+            try {
+                Thread.sleep(1000); // Adjust the sleep time as needed
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("\nMain Menu:");
             System.out.println("1. Connect to server");
             System.out.println("2. Send message");
             System.out.println("3. Exit");
@@ -156,7 +156,7 @@ public class Start extends Thread {
 
             switch (choice) {
                 case 1:
-                    System.out.println("Connecting to server...");
+                    System.out.println("\nConnecting to server...");
 
                     scanner.nextLine(); // escape the \n
                     System.out.print("Enter Server IP: ");
@@ -176,7 +176,7 @@ public class Start extends Thread {
 
                     break;
                 case 2:
-                    System.out.println("Sending message...");
+                    System.out.println("\nSending message...");
 
                     scanner.nextLine(); // escape the \n
 
@@ -202,8 +202,8 @@ public class Start extends Thread {
                     } catch (IOException e) {
                         System.err.println("Error writing msg to temp file: " + e.getMessage());
                     }
-                    
-        ;
+
+                    ;
 
                     // initiate message request chain
                     MsgPacket msgForward = new MsgPacket("REQ-PUBKEY", recipName, "");
@@ -235,8 +235,9 @@ public class Start extends Thread {
     @Override
     public void run() {
 
-        System.out.println("Server listening on " + localhost.getIp() + ":" +
-                localhost.getPORT() + "...");
+        // System.out.println("\033[0;92mServer listening on " + localhost.getIp() + ":"
+        // +
+        // localhost.getPORT() + "...\033[0m");
 
         localhost.startListener();
 

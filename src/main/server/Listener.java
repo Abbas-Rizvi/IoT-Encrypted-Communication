@@ -103,7 +103,7 @@ public class Listener implements Serializable {
         SocketChannel socketChannel = serverSocketChannel.accept();
         socketChannel.configureBlocking(false);
         socketChannel.register(selector, SelectionKey.OP_READ);
-        System.out.println("### Connection accepted from: " + socketChannel.getRemoteAddress());
+        System.out.println("\n\033[0;34mLOG: Connection accepted from: " + socketChannel.getRemoteAddress() + "\033[0m");
 
     }
 
@@ -121,8 +121,6 @@ public class Listener implements Serializable {
             int bytesRead = socketChannel.read(buffer);
 
             if (bytesRead == -1) {
-                // Connection closed by the client
-                System.out.println("Connection closed by: " + socketChannel.getRemoteAddress());
                 socketChannel.close();
                 key.cancel();
                 return;
@@ -144,7 +142,6 @@ public class Listener implements Serializable {
             byte[] data = new byte[buffer.remaining()];
             buffer.get(data);
 
-            // System.out.println("Received message from " +
             InetSocketAddress remoteAddress = (InetSocketAddress) socketChannel.getRemoteAddress();
             String ipAddress = remoteAddress.getAddress().getHostAddress();
 

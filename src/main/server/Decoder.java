@@ -66,7 +66,8 @@ public class Decoder {
             try {
 
                 // print what was received
-                System.out.println("Received " + msg.getType() + " From " + socketChannel.getRemoteAddress());
+                System.out.println("\033[0;34mLOG: Received " + msg.getType() + " From "
+                        + socketChannel.getRemoteAddress() + "\033[0m");
 
                 // handle recived message
                 String messageType = msg.getType().toUpperCase();
@@ -339,9 +340,10 @@ public class Decoder {
             // decrypt
             byte[] decrpytedMsgBytes = encrypt.decrypt(msg.getMsg());
 
-            String outputMsg = new String(decrpytedMsgBytes , StandardCharsets.UTF_8);
+            String outputMsg = new String(decrpytedMsgBytes, StandardCharsets.UTF_8);
 
-            System.out.println(outputMsg);
+            System.out.println("\033[0;31mRECV: " + outputMsg + "\033[0m");
+
 
         }
 

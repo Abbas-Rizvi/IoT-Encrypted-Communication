@@ -21,7 +21,7 @@ public class PackRouting extends Thread{
     // send message to host
     public void run() {
         
-        System.out.println(msgPacket);
+        // System.out.println(msgPacket);
 
         // System.out.println("Thread started for sending to " + host.getIp());
 

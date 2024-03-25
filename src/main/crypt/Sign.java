@@ -57,7 +57,7 @@ public class Sign {
                 signature.update(pack.getMsg());
 
                 if (signature.verify(pack.getSig())) {
-                    System.out.println("Msg was verified as signed by " + tHost.getName() + "!");
+                    System.out.println("\033[0;34mLOG: Received Message was verified as signed by " + tHost.getName() + "!\033[0m");
                     return true; // signature verified
                 }
 
@@ -66,7 +66,7 @@ public class Sign {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         // sig not verified
         return false;
     }
