@@ -88,7 +88,7 @@ public class Decoder {
 
                     case "RECV-PUBKEY":
                         // server processsing client req for key
-                        recvPubKey(msg, ipAddress, "testmsg");
+                        recvPubKey(msg, ipAddress);
                         break;
 
                     case "FORWARD-CRYPT":
