@@ -1,52 +1,49 @@
 package test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.security.PublicKey;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import network.Host;
 
+import static org.junit.Assert.*;
+
 public class HostTest {
 
     private Host host;
-    private PublicKey pubKey;
 
     @Before
     public void setUp() {
-        // Initialize Host object with sample data
-        pubKey = generateSamplePublicKey();
-        host = new Host("TestUser", "127.0.0.1", "");
+        host = new Host("TestUser", "127.0.0.1");
     }
 
     @Test
-    public void testConstructor() {
-        assertNotNull(host);
+    public void constructorWithPublicKeyString() {
+        String publicKeyString = "dummyPublicKeyString";
+        Host hostWithPublicKey = new Host("TestUser", "127.0.0.1", publicKeyString);
+        assertEquals(publicKeyString, hostWithPublicKey.getPubKeyStr());
     }
 
     @Test
-    public void testGettersAndSetters() {
-        // Test getters
-        assertEquals("TestUser", host.getName());
-        assertEquals("127.0.0.1", host.getIp());
-        assertEquals(pubKey, host.getPubKey());
-
-        // Test setters
-        host.setName("NewUser");
-        assertEquals("NewUser", host.getName());
-
-        host.setIp("192.168.0.1");
-        assertEquals("192.168.0.1", host.getIp());
-
-        PublicKey newPubKey = generateSamplePublicKey();
-        host.setPubKey(newPubKey);
-        assertEquals(newPubKey, host.getPubKey());
+    public void getAndSetId() {
+        host.setId(1);
+        assertEquals(1, host.getId());
     }
 
-    private PublicKey generateSamplePublicKey() {
-        return null;
+    @Test
+    public void getAndSetName() {
+        host.setName("NewTestUser");
+        assertEquals("NewTestUser", host.getName());
     }
+
+    @Test
+    public void getAndSetIp() {
+        host.setIp("192.168.1.1");
+        assertEquals("192.168.1.1", host.getIp());
+    }
+
+    @Test
+    public void getPORT() {
+        assertEquals(5687, host.getPORT());
+    }
+
 }

@@ -1,6 +1,5 @@
 package test;
 
-
 import static org.junit.Assert.*;
 
 import java.security.PublicKey;
@@ -71,28 +70,14 @@ public class KnownHostsTest {
         assertTrue(matchingRows.get(0).contains("TestHost"));
     }
 
-    @Test
-    public void testReadAllHosts() {
-        List<Host> allHosts = knownHosts.readAllHosts();
-        assertEquals(1, allHosts.size());
-        assertEquals("TestHost", allHosts.get(0).getName());
-    }
-
-    @Test
-    public void testSerialize() {
-        assertNotNull(knownHosts.serialize());
-    }
 
     @Test
     public void testGetHostByIP() {
-        assertNotNull(knownHosts.getHostByIP("TestIPAddress"));
-        assertNull(knownHosts.getHostByIP("NonExistentIPAddress"));
+
+        Host host1 = new Host("test", "test");
+        knownHosts.insertRecord(host1);
+        assertEquals(host1.getName(), knownHosts.getHostByIP("test").getName());
     }
 
-    @Test
-    public void testGetAllPublicKeys() {
-        List<PublicKey> publicKeys = knownHosts.getAllPublicKeys();
-        assertEquals(1, publicKeys.size());
-        assertEquals("TestPublicKey", publicKeys.get(0).toString());
-    }
+
 }

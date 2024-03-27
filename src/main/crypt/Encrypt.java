@@ -33,8 +33,6 @@ public class Encrypt {
             rsaCipher.init(Cipher.ENCRYPT_MODE, publicKey);
             byte[] encryptedSymmetricKey = rsaCipher.doFinal(symmetricKey.getEncoded());
 
-            ;
-
             // Combine key and message
             byte[] merged = new byte[encryptedSymmetricKey.length + encryptedMessage.length];
             System.arraycopy(encryptedSymmetricKey, 0, merged, 0, encryptedSymmetricKey.length);
@@ -68,6 +66,8 @@ public class Encrypt {
             Key symmetricKey = new SecretKeySpec(decryptedSymmetricKey, "AES");
             Cipher aesCipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             aesCipher.init(Cipher.DECRYPT_MODE, symmetricKey);
+            System.out.println(
+                    "\033[0;34mLOG: Message has been decrypted successfully!\033[0m");
 
             return aesCipher.doFinal(encryptedData);
         } catch (Exception e) {
