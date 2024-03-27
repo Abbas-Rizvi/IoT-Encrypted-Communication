@@ -106,7 +106,7 @@ public class Keys implements Serializable {
 
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 
-            e.printStackTrace();
+//            e.printStackTrace();
 
         }
 

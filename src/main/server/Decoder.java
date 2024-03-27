@@ -150,6 +150,10 @@ public class Decoder {
         Host sendHost = new Host("recv", ipAddress,
                 knownHosts.lookupPubKeyByIP(ipAddress));
 
+        // print what was received
+        System.out.println("\033[0;34mLOG: Sending " + localHost.getName() + " Host to " + knownHosts.lookupNameByIP(ipAddress) +" \033[0m");
+
+
         // send packet back to host
         PackRouting packR = new PackRouting(sendHost, msgPack);
         packR.start();
@@ -170,7 +174,7 @@ public class Decoder {
             if (knownHosts.insertRecord(recvHost) == 1)
                 System.out.println("Error, host already exists");
             else
-                System.out.println("Host added!");
+                System.out.println("Host " + recvHost.getName() + " added!");
 
         } catch (Exception e) {
             e.getStackTrace();
@@ -217,6 +221,10 @@ public class Decoder {
             // sign message
             Sign sign = new Sign();
             sign.signMsg(msgPack);
+
+            // print what was received
+            System.out.println("\033[0;34mLOG: Sending" + tarHost.getName() + " Host to " + knownHosts.lookupNameByIP(ipAddress) + " \033[0m");
+
 
             // send packet back to host
             PackRouting packR = new PackRouting(sendHost, msgPack);
@@ -281,6 +289,9 @@ public class Decoder {
             Sign sign = new Sign();
             sign.signMsg(msgPack);
 
+
+            System.out.println("\033[0;34mLOG: Sending " + destHost.getName() + " encrypted msg to " + knownHosts.lookupNameByIP(ipAddress) + " \033[0m");
+
             // send packet back to host
             PackRouting packR = new PackRouting(sendHost, msgPack);
             packR.start();
@@ -318,6 +329,8 @@ public class Decoder {
             Sign sign = new Sign();
             sign.signMsg(msgPack);
 
+            System.out.println("\033[0;34mLOG: Forwarding encrypted msg to " + tarHost.getName() + " \033[0m");
+
             // send packet back to host
             PackRouting packR = new PackRouting(tarHost, msgPack);
             packR.start();
@@ -343,7 +356,6 @@ public class Decoder {
             String outputMsg = new String(decrpytedMsgBytes, StandardCharsets.UTF_8);
 
             System.out.println("\033[0;31mRECV: " + outputMsg + "\033[0m");
-
 
         }
 
